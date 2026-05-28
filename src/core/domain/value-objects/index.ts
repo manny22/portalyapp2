@@ -1,0 +1,8 @@
+export { DocumentNumber } from './document-number.vo'
+export type { DocumentType } from './document-number.vo'
+export { Email } from './email.vo'
+export { PhoneNumber } from './phone-number.vo'
+export { FullName } from './full-name.vo'
+export { LicensePlate } from './license-plate.vo'
+export { AuthorizationCode } from './authorization-code.vo'
+export { DateRange } from './date-range.vo'
