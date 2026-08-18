@@ -6,8 +6,6 @@ import {
   useToggleVehicleStatus,
 } from '@/shared/hooks/features/useVehicles'
 import type { Vehicle, CreateVehicleDto, UpdateVehicleDto } from '@/core/domain/models/vehicle.model'
-import type { ParkingSpotType } from '@/core/domain/models/parking-spot.model'
-import { PARKING_SPOT_TYPE_LABELS } from '@/core/domain/models/parking-spot.model'
 import { AppLayout } from '@/ui/templates/AppLayout/AppLayout'
 import { PageLayout } from '@/ui/templates/PageLayout/PageLayout'
 import { DataTable } from '@/ui/organisms/DataTable/DataTable'
@@ -21,13 +19,8 @@ const VEHICLE_TYPE_LABELS: Record<string, string> = {
   CAR: 'Automóvil',
   MOTORCYCLE: 'Motocicleta',
   BICYCLE: 'Bicicleta',
+  TRUCK: 'Camión',
   OTHER: 'Otro',
-}
-
-const SPOT_TYPE_STYLE: Record<ParkingSpotType, string> = {
-  PRIVATE: 'bg-blue-100 text-blue-700',
-  COMMON:  'bg-slate-100 text-slate-700',
-  VISITOR: 'bg-amber-100 text-amber-700',
 }
 
 const COLUMNS: Column<Vehicle>[] = [
@@ -36,7 +29,7 @@ const COLUMNS: Column<Vehicle>[] = [
     header: 'Placa',
     render: v => (
       <div>
-        <span className="font-mono font-bold text-slate-800">{v.plate.format()}</span>
+        <span className="font-mono font-bold text-slate-800">{v.plate}</span>
         <p className="text-xs text-slate-500 mt-0.5">{VEHICLE_TYPE_LABELS[v.type]}</p>
       </div>
     ),
@@ -54,42 +47,6 @@ const COLUMNS: Column<Vehicle>[] = [
     ),
   },
   {
-    key: 'owner',
-    header: 'Propietario',
-    render: v => (
-      <div>
-        <p className="text-sm text-slate-800">
-          {v.ownerType === 'RESIDENT' ? v.residentName : v.visitorName}
-        </p>
-        <span className={`text-xs ${v.ownerType === 'RESIDENT' ? 'text-slate-500' : 'text-amber-600 font-medium'}`}>
-          {v.ownerType === 'RESIDENT' ? `Apt. ${v.unitNumber}` : 'Visitante'}
-        </span>
-      </div>
-    ),
-  },
-  {
-    key: 'parking',
-    header: 'Parqueadero',
-    render: v => {
-      if (!v.parkingSpotId) {
-        return <span className="text-xs text-slate-400">Sin asignar</span>
-      }
-      return (
-        <div className="flex flex-col gap-1">
-          <span
-            className={`inline-flex w-fit items-center rounded-full px-2 py-0.5 text-xs font-medium ${SPOT_TYPE_STYLE[v.parkingSpotType!]}`}
-          >
-            {PARKING_SPOT_TYPE_LABELS[v.parkingSpotType!]}
-          </span>
-          <span className="font-mono text-xs text-slate-600">{v.parkingSpotCode}</span>
-          {v.hasCommonParkingAuthorization && v.parkingSpotType === 'COMMON' && (
-            <span className="text-xs text-amber-600">★ Autorizado</span>
-          )}
-        </div>
-      )
-    },
-  },
-  {
     key: 'status',
     header: 'Estado',
     render: v => (
@@ -98,13 +55,19 @@ const COLUMNS: Column<Vehicle>[] = [
       </Badge>
     ),
   },
+  {
+    key: 'date',
+    header: 'Registrado',
+    render: v => (
+      <span className="text-xs text-slate-500">
+        {new Date(v.createdAt).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
+      </span>
+    ),
+  },
 ]
-
-type FilterMode = 'all' | 'residents' | 'visitors'
 
 export function VehiclesPage() {
   const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState<FilterMode>('all')
   const [modalOpen, setModalOpen] = useState(false)
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
 
@@ -115,19 +78,12 @@ export function VehiclesPage() {
   const toast = useToast()
 
   const filtered = (data ?? []).filter(v => {
-    const ownerName = v.ownerType === 'RESIDENT' ? (v.residentName ?? '') : (v.visitorName ?? '')
-    const matchesSearch =
-      v.plate.format().includes(search.toUpperCase()) ||
+    return (
+      v.plate.toUpperCase().includes(search.toUpperCase()) ||
       `${v.brand ?? ''} ${v.model ?? ''}`.toLowerCase().includes(search.toLowerCase()) ||
-      ownerName.toLowerCase().includes(search.toLowerCase())
-    if (!matchesSearch) return false
-    if (filter === 'residents') return v.ownerType === 'RESIDENT'
-    if (filter === 'visitors') return v.ownerType === 'VISITOR'
-    return true
+      v.color?.toLowerCase().includes(search.toLowerCase())
+    )
   })
-
-  const residentCount = (data ?? []).filter(v => v.ownerType === 'RESIDENT').length
-  const visitorCount = (data ?? []).filter(v => v.ownerType === 'VISITOR').length
 
   function openCreate() {
     setEditingVehicle(null)
@@ -159,12 +115,12 @@ export function VehiclesPage() {
     }
   }
 
-  async function handleToggle(vehicle: Vehicle) {
+  async function handleToggleStatus(vehicle: Vehicle) {
     try {
       await toggleStatus.mutateAsync(vehicle.id)
       toast.success(`Vehículo ${vehicle.isActive ? 'desactivado' : 'activado'} correctamente`)
-    } catch {
-      toast.error('Error al cambiar el estado del vehículo')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al actualizar el estado')
     }
   }
 
@@ -174,15 +130,14 @@ export function VehiclesPage() {
       key: 'actions',
       header: '',
       render: v => (
-        <div className="flex gap-2 justify-end">
+        <div className="flex justify-end gap-2">
           <Button size="sm" variant="ghost" onClick={() => openEdit(v)}>
             Editar
           </Button>
           <Button
             size="sm"
-            variant={v.isActive ? 'danger' : 'ghost'}
-            onClick={() => handleToggle(v)}
-            loading={toggleStatus.isPending}
+            variant={v.isActive ? 'danger' : 'success'}
+            onClick={() => handleToggleStatus(v)}
           >
             {v.isActive ? 'Desactivar' : 'Activar'}
           </Button>
@@ -195,47 +150,19 @@ export function VehiclesPage() {
     <AppLayout>
       <PageLayout
         title="Vehículos"
-        description="Vehículos registrados en el conjunto"
+        description="Registro de vehículos registrados"
         actions={
           <Button size="sm" onClick={openCreate}>
             Registrar vehículo
           </Button>
         }
         filters={
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <SearchBar
-              value={search}
-              onChange={setSearch}
-              placeholder="Buscar por placa, marca o propietario..."
-              className="w-full sm:w-80"
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => setFilter('all')}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  filter === 'all' ? 'bg-[#1e3a5f] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Todos ({data?.length ?? 0})
-              </button>
-              <button
-                onClick={() => setFilter('residents')}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  filter === 'residents' ? 'bg-[#1e3a5f] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Residentes ({residentCount})
-              </button>
-              <button
-                onClick={() => setFilter('visitors')}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  filter === 'visitors' ? 'bg-amber-600 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                }`}
-              >
-                Visitantes ({visitorCount})
-              </button>
-            </div>
-          </div>
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar por placa, marca o modelo..."
+            className="w-full sm:w-80"
+          />
         }
       >
         <DataTable
@@ -246,7 +173,7 @@ export function VehiclesPage() {
           error={error}
           onRetry={refetch}
           emptyTitle="Sin vehículos"
-          emptyDescription="No hay vehículos que coincidan con los filtros."
+          emptyDescription="No hay vehículos registrados."
         />
       </PageLayout>
 

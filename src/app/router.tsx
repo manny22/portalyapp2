@@ -10,6 +10,7 @@ import { AccessControlPage } from '@/ui/pages/AccessControlPage/AccessControlPag
 import { ReportsPage } from '@/ui/pages/ReportsPage/ReportsPage'
 import { UsersPage } from '@/ui/pages/UsersPage/UsersPage'
 import { SettingsPage } from '@/ui/pages/SettingsPage/SettingsPage'
+import { ResidentialUnitsPage } from '@/ui/pages/ResidentialUnitsPage/ResidentialUnitsPage'
 import { container } from '@/infrastructure/di/container'
 
 function getSession() {
@@ -62,6 +63,7 @@ const accessControlRoute = makeRoute('/access-control', AccessControlPage)
 const reportsRoute = makeRoute('/reports', ReportsPage)
 const usersRoute = makeRoute('/users', UsersPage)
 const settingsRoute = makeRoute('/settings', SettingsPage)
+const residentialUnitsRoute = makeRoute('/residential-units', ResidentialUnitsPage)
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -76,6 +78,7 @@ const routeTree = rootRoute.addChildren([
   reportsRoute,
   usersRoute,
   settingsRoute,
+  residentialUnitsRoute,
 ])
 
 export const router = createRouter({ routeTree })

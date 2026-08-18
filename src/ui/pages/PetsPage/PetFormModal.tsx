@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Modal, ModalFooter, FormField } from '@/ui/molecules'
 import { Input, Select } from '@/ui/atoms'
+import { APP_CONFIG } from '@/shared/config/app.config'
 import type { Pet, PetType, PetSize, CreatePetDto, UpdatePetDto } from '@/core/domain/models/pet.model'
 import { classifyBreed, ALL_KNOWN_BREEDS, SPECIAL_PERMIT_BREEDS, PROHIBITED_BREEDS } from '@/shared/constants/pet-breeds'
 import { useResidents } from '@/shared/hooks/features/useResidents'
@@ -164,14 +165,15 @@ export function PetFormModal({ open, onClose, onSubmit, loading = false, pet }: 
       { value: '', label: 'Seleccionar residente...' },
       ...residents
         .filter(r => r.isActive)
-        .map(r => ({ value: r.id, label: `${r.name.full} — Apt. ${r.unitNumber}` })),
+        .map(r => ({ value: r.id, label: `${r.firstName} ${r.lastName} — Apt. ${r.unitId}` })),
     ],
     [residents],
   )
 
   function submit(values: FormValues) {
     const resident = residents.find(r => r.id === values.residentId)
-    const payload = {
+
+    const basePayload = {
       name: values.name,
       type: values.type as PetType,
       breed: values.breed || undefined,
@@ -179,9 +181,6 @@ export function PetFormModal({ open, onClose, onSubmit, loading = false, pet }: 
       size: (values.size as PetSize) || undefined,
       weight: values.weight ? Number(values.weight) : undefined,
       observations: values.observations || undefined,
-      residentId: values.residentId,
-      unitId: resident?.unitId ?? '',
-      propertyId: resident?.propertyId ?? 'prop-1',
       vaccinationDate: toDate(values.vaccinationDate),
       vaccinationExpiry: toDate(values.vaccinationExpiry),
       healthCertificateNumber: values.healthCertificateNumber || undefined,
@@ -191,6 +190,16 @@ export function PetFormModal({ open, onClose, onSubmit, loading = false, pet }: 
       municipalRegistrationNumber: values.municipalRegistrationNumber || undefined,
       municipalRegistrationExpiry: toDate(values.municipalRegistrationExpiry),
     }
+
+    // Para crear, agregamos residentId y propertyId
+    const payload = isEdit
+      ? basePayload
+      : {
+          ...basePayload,
+          residentId: values.residentId,
+          propertyId: resident?.propertyId ?? APP_CONFIG.DEFAULT_PROPERTY_ID,
+        }
+
     onSubmit(payload, values.residentId)
   }
 

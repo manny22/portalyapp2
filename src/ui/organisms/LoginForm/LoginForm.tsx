@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { Button, Input } from '@/ui/atoms'
 import { FormField } from '@/ui/molecules'
@@ -14,6 +15,7 @@ type FormValues = z.infer<typeof schema>
 
 export function LoginForm() {
   const { login } = useAuth()
+  const navigate = useNavigate()
 
   const {
     register,
@@ -25,6 +27,7 @@ export function LoginForm() {
   async function onSubmit(values: FormValues) {
     try {
       await login(values.email, values.password)
+      await navigate({ to: '/dashboard' })
     } catch {
       setError('root', { message: 'Credenciales incorrectas' })
     }

@@ -6,9 +6,15 @@ export class CancelAuthorizationUseCase {
 
   async execute(id: string): Promise<VisitAuthorization> {
     const authorization = await this.authorizationRepository.findById(id)
-    if (!authorization) throw new Error(`Autorización ${id} no encontrada`)
-    if (authorization.status === 'CANCELLED') throw new Error('La autorización ya está cancelada')
-    if (authorization.status === 'USED') throw new Error('No se puede cancelar una autorización ya utilizada')
+    if (!authorization) {
+      throw new Error(`Autorización ${id} no encontrada`)
+    }
+    if (authorization.status === 'REVOKED') {
+      throw new Error('La autorización ya está revocada')
+    }
+    if (authorization.status === 'EXPIRED') {
+      throw new Error('No se puede revocar una autorización expirada')
+    }
     return this.authorizationRepository.cancel(id)
   }
 }

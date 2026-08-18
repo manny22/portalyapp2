@@ -14,13 +14,14 @@ const PERSON_TYPE_LABELS: Record<string, string> = {
   SERVICE_PROVIDER: 'Proveedor', STAFF: 'Personal',
 }
 
-function timeAgo(date: Date): string {
-  const mins = Math.round((Date.now() - date.getTime()) / 60_000)
+function timeAgo(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date
+  const mins = Math.round((Date.now() - d.getTime()) / 60_000)
   if (mins < 1) return 'Hace un momento'
   if (mins < 60) return `Hace ${mins} min`
   const hrs = Math.floor(mins / 60)
   if (hrs < 24) return `Hace ${hrs}h ${mins % 60}min`
-  return date.toLocaleDateString('es-CO')
+  return d.toLocaleDateString('es-CO')
 }
 
 interface Props {

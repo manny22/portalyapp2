@@ -12,3 +12,21 @@ export interface ResidentialUnit {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface ResidentialUnitFilters {
+  propertyId?: string
+  blockId?: string
+}
+
+export interface CreateResidentialUnitDto {
+  number: string
+  floor: number
+  propertyId: string
+  blockId: string
+}
+
+export interface UpdateResidentialUnitDto {
+  number?: string
+  floor?: number
+  blockId?: string
+}

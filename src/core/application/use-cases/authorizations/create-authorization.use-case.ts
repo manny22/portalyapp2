@@ -5,17 +5,24 @@ export class CreateAuthorizationUseCase {
   constructor(private readonly authorizationRepository: AuthorizationRepositoryPort) {}
 
   async execute(data: CreateAuthorizationDto): Promise<VisitAuthorization> {
-    if (data.visitorSource === 'EXISTING' && !data.visitorId) {
-      throw new Error('Debe seleccionar un visitante registrado')
+    // Validate required fields
+    if (!data.visitorId) {
+      throw new Error('El visitante es requerido')
     }
-    if (data.visitorSource === 'QUICK' && !data.quickVisitorName?.trim()) {
-      throw new Error('El nombre del visitante es requerido')
+    if (!data.residentId) {
+      throw new Error('El residente es requerido')
     }
-    if (data.type === 'RECURRING' && data.startDate && data.endDate) {
-      if (data.endDate <= data.startDate) {
-        throw new Error('La fecha de fin debe ser posterior a la fecha de inicio')
-      }
+    if (!data.validFrom || !data.validUntil) {
+      throw new Error('Las fechas de validez son requeridas')
     }
+
+    // Validate date range
+    const validFrom = new Date(data.validFrom)
+    const validUntil = new Date(data.validUntil)
+    if (validUntil <= validFrom) {
+      throw new Error('La fecha de fin debe ser posterior a la fecha de inicio')
+    }
+
     return this.authorizationRepository.create(data)
   }
 }

@@ -28,18 +28,8 @@ const COLUMNS: Column<Resident>[] = [
     header: 'Residente',
     render: r => (
       <div>
-        <p className="font-medium text-slate-800">{r.name.full}</p>
-        <p className="text-xs text-slate-500">{r.document.format()}</p>
-      </div>
-    ),
-  },
-  {
-    key: 'unit',
-    header: 'Unidad',
-    render: r => (
-      <div>
-        <p className="font-mono text-sm text-slate-800">Apt. {r.unitNumber}</p>
-        {r.blockName && <p className="text-xs text-slate-500">{r.blockName}</p>}
+        <p className="font-medium text-slate-800">{r.firstName} {r.lastName}</p>
+        <p className="text-xs text-slate-500">{r.email}</p>
       </div>
     ),
   },
@@ -48,17 +38,9 @@ const COLUMNS: Column<Resident>[] = [
     header: 'Contacto',
     render: r => (
       <div className="flex flex-col gap-0.5">
-        {r.email && <p className="text-xs text-slate-600">{r.email.value}</p>}
-        {r.phone && <p className="text-xs text-slate-500">{r.phone.value}</p>}
-        {!r.email && !r.phone && <span className="text-xs text-slate-400">Sin contacto</span>}
+        {r.phone && <p className="text-xs text-slate-600">{r.phone}</p>}
+        {!r.phone && <span className="text-xs text-slate-400">Sin teléfono</span>}
       </div>
-    ),
-  },
-  {
-    key: 'relation',
-    header: 'Vinculación',
-    render: r => (
-      <span className="text-sm text-slate-700">{RELATION_LABELS[r.relation] ?? r.relation}</span>
     ),
   },
   {
@@ -85,8 +67,8 @@ export function ResidentsPage() {
 
   const filtered = (data ?? []).filter(
     r =>
-      r.name.full.toLowerCase().includes(search.toLowerCase()) ||
-      r.document.format().toLowerCase().includes(search.toLowerCase()),
+      `${r.firstName} ${r.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
+      r.email.toLowerCase().includes(search.toLowerCase()),
   )
 
   function openCreate() {

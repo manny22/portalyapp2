@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { APP_CONFIG } from '@/shared/config/app.config'
 import type { CreateAuthorizationDto, DayOfWeek } from '@/core/domain/models/visit-authorization.model'
 import { DateRange } from '@/core/domain/value-objects/date-range.vo'
 import { useResidents } from '@/shared/hooks/features/useResidents'
@@ -123,7 +124,7 @@ export function AuthorizationFormModal({ open, onClose, onSubmit, loading }: Pro
       type: values.type,
       visitorSource: values.visitorSource,
       residentId: values.residentId,
-      propertyId: 'prop-1',
+      propertyId: APP_CONFIG.DEFAULT_PROPERTY_ID,
       unitId: residents.find(r => r.id === values.residentId)?.unitId ?? '',
       observations: values.observations || undefined,
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '@/shared/hooks/useAuth'
+import { APP_CONFIG } from '@/shared/config/app.config'
 import {
   usePeopleInside,
   useAccessLogs,
@@ -81,7 +82,7 @@ const LOG_COLUMNS: Column<AccessLog>[] = [
 
 export function AccessControlPage() {
   const { user } = useAuth()
-  const propertyId = user?.propertyId ?? 'prop-1'
+  const propertyId = user?.propertyId ?? APP_CONFIG.DEFAULT_PROPERTY_ID
   const guardId = user?.id ?? 'user-3'
 
   const [entryOpen, setEntryOpen] = useState(false)

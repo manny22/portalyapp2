@@ -1,21 +1,13 @@
-import type { UserRole } from './user.model'
-
 export interface AuthSession {
   accessToken: string
-  user: AuthUser
-}
-
-export interface AuthUser {
-  id: string
-  fullName: string
-  email: string
-  role: UserRole
-  propertyId: string | null
-  propertyName: string | null
-  residentId: string | null
+  refreshToken?: string
 }
 
 export interface LoginDto {
   email: string
   password: string
+}
+
+export interface RefreshTokenDto {
+  refreshToken: string
 }

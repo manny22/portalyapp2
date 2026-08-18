@@ -92,7 +92,7 @@ const COLUMNS: Column<Pet>[] = [
         <VaccinationStatus pet={p} />
         {p.vaccinationExpiry && (
           <span className="text-xs text-slate-400">
-            Vence: {p.vaccinationExpiry.toLocaleDateString('es-CO')}
+            Vence: {new Date(p.vaccinationExpiry).toLocaleDateString('es-CO')}
           </span>
         )}
       </div>

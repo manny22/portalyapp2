@@ -30,7 +30,7 @@ function formatValidity(a: VisitAuthorization): string {
   if (a.type === 'RECURRING') {
     const days = a.allowedDays.map(d => DAY_LABEL[d]).join(' ')
     const range = a.validityPeriod
-      ? `${a.validityPeriod.startDate.toLocaleDateString('es-CO')} – ${a.validityPeriod.endDate.toLocaleDateString('es-CO')}`
+      ? `${new Date(a.validityPeriod.startDate).toLocaleDateString('es-CO')} – ${new Date(a.validityPeriod.endDate).toLocaleDateString('es-CO')}`
       : '—'
     const hours = a.allowedTimeStart ? `${a.allowedTimeStart}–${a.allowedTimeEnd}` : ''
     return [range, days, hours].filter(Boolean).join(' · ')

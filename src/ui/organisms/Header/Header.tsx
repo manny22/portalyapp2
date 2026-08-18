@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { Avatar } from '@/ui/atoms'
 
@@ -7,6 +8,7 @@ interface HeaderProps {
 
 export function Header({ onMobileMenuOpen }: HeaderProps) {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 lg:px-6">
@@ -38,7 +40,10 @@ export function Header({ onMobileMenuOpen }: HeaderProps) {
         </div>
         <Avatar initials={user?.fullName?.slice(0, 2) ?? '?'} size="sm" />
         <button
-          onClick={logout}
+          onClick={async () => {
+            await logout()
+            await navigate({ to: '/login' })
+          }}
           className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
           title="Cerrar sesión"
         >

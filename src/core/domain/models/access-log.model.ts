@@ -1,52 +1,40 @@
-export type PersonType = 'RESIDENT' | 'VISITOR' | 'SERVICE_PROVIDER' | 'DELIVERY' | 'STAFF'
-export type AccessStatus = 'ENTERED' | 'EXITED'
+export type AccessType = 'ENTRY' | 'EXIT'
 
 export interface AccessLog {
   id: string
-  personType: PersonType
-  status: AccessStatus
-  enteredAt: Date
-  exitedAt: Date | null
-  visitorId: string | null
-  visitorName: string | null
-  residentId: string | null
-  residentName: string | null
-  vehiclePlate: string | null
-  authorizationId: string | null
-  authorizationCode: string | null
-  unitId: string | null
-  unitNumber: string | null
-  visitReason: string | null
-  observations: string | null
-  guardId: string
-  guardName: string
+  type: AccessType
   propertyId: string
+  guardId: string
+  visitorId?: string
+  residentId?: string
+  vehicleId?: string
+  petId?: string
+  authorizationId?: string
+  notes?: string
   createdAt: Date
 }
 
 export interface AccessLogFilters {
-  status?: AccessStatus
-  personType?: PersonType
-  dateFrom?: Date
-  dateTo?: Date
   propertyId?: string
-  search?: string
 }
 
 export interface RegisterEntryDto {
-  personType: PersonType
+  propertyId: string
+  guardId: string
   visitorId?: string
   residentId?: string
-  vehiclePlate?: string
+  vehicleId?: string
+  petId?: string
   authorizationId?: string
-  unitId?: string
-  visitReason?: string
-  observations?: string
-  guardId: string
-  propertyId: string
+  notes?: string
 }
 
 export interface RegisterExitDto {
-  accessLogId: string
+  propertyId: string
   guardId: string
+  visitorId?: string
+  residentId?: string
+  vehicleId?: string
+  petId?: string
+  notes?: string
 }

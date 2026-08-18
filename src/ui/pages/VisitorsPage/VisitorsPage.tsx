@@ -16,8 +16,8 @@ const COLUMNS: Column<Visitor>[] = [
     header: 'Visitante',
     render: v => (
       <div>
-        <p className="font-medium text-slate-800">{v.name.full}</p>
-        <p className="text-xs text-slate-500">{v.document.format()}</p>
+        <p className="font-medium text-slate-800">{v.firstName} {v.lastName}</p>
+        <p className="text-xs text-slate-500">{v.documentType} {v.documentNumber}</p>
       </div>
     ),
   },
@@ -27,32 +27,19 @@ const COLUMNS: Column<Visitor>[] = [
     render: v => (
       <div className="flex flex-col gap-0.5">
         {v.phone ? (
-          <p className="text-xs text-slate-600">{v.phone.value}</p>
+          <p className="text-xs text-slate-600">{v.phone}</p>
         ) : (
           <span className="text-xs text-slate-400">Sin teléfono</span>
         )}
-        {v.company && (
-          <p className="text-xs text-slate-500 italic">{v.company}</p>
-        )}
       </div>
     ),
-  },
-  {
-    key: 'observations',
-    header: 'Observaciones',
-    render: v =>
-      v.observations ? (
-        <p className="max-w-xs truncate text-xs text-slate-600">{v.observations}</p>
-      ) : (
-        <span className="text-xs text-slate-400">—</span>
-      ),
   },
   {
     key: 'date',
     header: 'Registrado',
     render: v => (
       <span className="text-xs text-slate-500">
-        {v.createdAt.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
+        {new Date(v.createdAt).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
       </span>
     ),
   },
@@ -70,9 +57,8 @@ export function VisitorsPage() {
 
   const filtered = (data ?? []).filter(
     v =>
-      v.name.full.toLowerCase().includes(search.toLowerCase()) ||
-      v.document.number.includes(search) ||
-      (v.company ?? '').toLowerCase().includes(search.toLowerCase()),
+      `${v.firstName} ${v.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
+      v.documentNumber.includes(search),
   )
 
   function openCreate() {
