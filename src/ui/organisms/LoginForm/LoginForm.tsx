@@ -38,7 +38,7 @@ export function LoginForm() {
       <FormField label="Correo electrónico" error={errors.email?.message} required>
         <Input
           type="email"
-          placeholder="admin@janora.com"
+          placeholder="miusuario@janora.com"
           autoComplete="email"
           {...register('email')}
           leftIcon={
@@ -74,10 +74,6 @@ export function LoginForm() {
       <Button type="submit" fullWidth loading={isSubmitting} size="lg">
         Iniciar sesión
       </Button>
-
-      <p className="text-center text-xs text-slate-400">
-        Demo: <span className="font-medium">admin@janora.com</span> / <span className="font-medium">admin123</span>
-      </p>
     </form>
   )
 }
