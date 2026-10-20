@@ -130,6 +130,10 @@ El cliente HTTP utiliza actualmente de forma fija:
 http://localhost:3000/api/v1
 ```
 
+La URL se puede configurar con `VITE_API_BASE_URL`. En una imagen Docker debe
+definirse durante el build con la URL que pueda alcanzar el navegador del
+usuario, por ejemplo `https://api.example.com/api/v1`.
+
 El backend no forma parte de este repositorio.
 
 ### Gestor de paquetes
@@ -178,6 +182,26 @@ Para previsualizar un build ya generado:
 ```bash
 npm run preview
 ```
+
+## Construcción de la imagen Docker
+
+Requisitos: Docker instalado y un backend accesible desde el navegador.
+
+Construya la imagen pasando la URL pública del backend:
+
+```bash
+docker build --build-arg VITE_API_BASE_URL=https://api.example.com/api/v1 -t janora-web:latest .
+```
+
+Ejecute el contenedor:
+
+```bash
+docker run --rm -p 8080:80 janora-web:latest
+```
+
+Abra `http://localhost:8080`. La configuración de Nginx incluye el fallback
+para las rutas de TanStack Router. La imagen contiene solamente los archivos
+estáticos compilados; el backend debe ejecutarse y publicarse por separado.
 
 ## Calidad y pruebas
 
